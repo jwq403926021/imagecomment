@@ -34,7 +34,7 @@
 
         ImageComment.prototype={
             exportImage:function(){
-                Canvas2Image.saveAsJPEG($(this.mainCanvas)[0])
+                Canvas2Image.saveAsJPEG($(this.mainCanvas)[0],100,100);
             },
             clearCanvas:function() {
                 if(this.selectedLayer){
