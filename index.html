@@ -5,6 +5,26 @@
     <title></title>
     <style>
         body,html{padding: 0; margin: 0;}
+        .overlayWrap{
+            width: 300px;
+            height: 200px;
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            margin-left: -150px;
+            margin-top: -100px;
+            background: white;
+            padding: 5px;
+            border: 1px solid #ccc;
+        }
+        .overlayWrap textarea{
+            width: 295px;
+            height: 120px;
+        }
+        .overlayWrap button{
+            width: 100%;
+            height: 30px;
+        }
     </style>
     <script src="js/jquery-3.1.1.min.js"></script>
     <script src="js/jcanvas.min.js"></script>
@@ -34,7 +54,7 @@
 
         ImageComment.prototype={
             exportImage:function(){
-                Canvas2Image.saveAsJPEG($(this.mainCanvas)[0],100,100);
+                Canvas2Image.saveAsJPEG($(this.mainCanvas)[0]);
             },
             clearCanvas:function() {
                 if(this.selectedLayer){
@@ -113,7 +133,7 @@
                 })
 
                 $(_this.mainCanvas).on("mouseup",function(ev){
-                    $(this).off("mousedown mousemove");
+                    $(this).off("mousedown mousemove mouseup");
                     _this.selectedLayer=null;
                 })
             },
@@ -143,71 +163,79 @@
                 })
 
                 $(_this.mainCanvas).on("mouseup",function(ev){
-                    $(this).off("mousedown mousemove");
+                    $(this).off("mousedown mousemove mouseup");
                     _this.selectedLayer=null;
                 })
             },
             useText:function(){
                 var _this=this;
-                var _tempRect,_finalPosition;
+                var _tempRect,_finalWidth,_finalX,_finalY;
 
                 $(this.mainCanvas).on("mousedown",function(ev){
-                    var _downX=ev.offsetX+2;
-                    var _downY=ev.offsetY+2;
+                    var _downX=_finalX=ev.offsetX+2;
+                    var _downY=_finalY=ev.offsetY+2;
                     var _name=_tempRect=new Date().getTime()+"_tempRect";
 
                     $(this).addLayer({
                         name:_name,
                         type: 'rectangle',
                         strokeStyle: '#da0000',
-                        strokeWidth: 2,
+                        strokeWidth: 1,
                         x: _downX, y: _downY,
                         width: 0, height: 0
                     });
 
                     $(this).on("mousemove",function(ev){
-                        _finalPosition=_this._move(ev,_downX,_downY,_name);
+                        var temp=_this._move(ev,_downX,_downY,_name);
+                        _finalWidth=temp.width;
                     })
                 })
 
                 $(_this.mainCanvas).on("mouseup",function(ev){
+                    _this._createOverlay(_finalX,_finalY,_finalWidth);
                     $(this).off("mousedown mousemove mouseup");
                     $(this).removeLayer(_tempRect);
-
-                    $(this).addLayer({
-                        name:_tempRect=new Date().getTime()+"_text",
-                        type: 'text',
-                        fillStyle: '#36c',
-                        fontSize: '12px',
-                        fontFamily: 'Trebuchet MS, sans-serif',
-                        text: 'The quick brown fox jumps over the lazy dog.',
-                        draggable: true,
-                        x: _finalPosition.x,
-                        y: _finalPosition.y,
-                        align: 'left',
-                        maxWidth:_finalPosition.width,
-                        click:function(layer){
-                            _this.selectedLayer=layer.name;
-                            _this.switchActive(layer.name);
-                        }
-//                        ,height:_finalPosition.height
-                    }).drawLayers();
-
                     _this.selectedLayer=null;
                 })
             },
-//            _move:function(event,x,y,_name){
-//                var currentWidth=event.offsetX-x;
-//                var currentHeight=event.offsetY-y;
-//
-//                var currentX=x+currentWidth/2;
-//                var currentY=y+currentHeight/2;
-//
-//                $(this.mainCanvas).setLayer(_name, {
-//                    x:currentX , y: currentY,
-//                    width: currentWidth, height: currentHeight
-//                }).drawLayers();
-//            },
+            _drawText:function(_finalX,_finalY,_finalWidth,text){
+                var _this=this;
+                $(".overlayWrap").remove();
+
+                $(_this.mainCanvas).addLayer({
+                    name:new Date().getTime()+"_text",
+                    type: 'text',
+                    fillStyle: '#36c',
+                    fontSize: '12px',
+                    fontFamily: 'Trebuchet MS, sans-serif',
+                    text: text,
+                    draggable: true,
+                    x: _finalX,
+                    y: _finalY,
+                    align:"left",
+                    fromCenter: false,
+                    maxWidth:_finalWidth,
+                    click:function(layer){
+                        _this.selectedLayer=layer.name;
+                        _this.switchActive(layer.name);
+                    }
+                }).drawLayers();
+            },
+            _createOverlay:function(_finalX,_finalY,_finalWidth){
+                var _this=this;
+                var _htmlStr='<div class="overlayWrap">'+
+                                '<p style="margin: 5px 0 10px 0;">Please input the comment:</p>'+
+                                '<div>'+
+                                    '<textarea></textarea>'+
+                                '</div>'+
+                                '<button>Submit</button>'+
+                             '</div>';
+                document.body.appendChild($(_htmlStr)[0]);
+
+                $(".overlayWrap button").on('click',function(){
+                    _this._drawText(_finalX,_finalY,_finalWidth,$(".overlayWrap textarea").val());
+                });
+            },
             _move:function(event,x,y,_name){
                 var currentWidth=event.offsetX-x-3;
                 var currentHeight=event.offsetY-y-3;
