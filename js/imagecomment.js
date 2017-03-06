@@ -9,7 +9,8 @@
 function ImageComment(options){
     this.default={
         canvasWrapper:"canvasWrapper",
-        loadImageBtn:"libtn",
+        loadImageInput:"libtn",
+        confirmbtn:"confirmbtn",
         circleBtn:"ucbtn",
         rectBtn:"urbtn",
         textBtn:"utbtn",
@@ -58,8 +59,10 @@ ImageComment.prototype={
     loadImage:function(e){
         var _this=this;
         this.clearCanvas();
-        var a = new Image();
-        a.src=e.value.replace("C:\\fakepath\\","image/");
+
+        var a=document.createElement("img");
+        a.src=$('#'+this.options.loadImageInput).val();
+
         a.onload=function(){
             if(_this.mainCanvas){
                 _this.mainCanvas.remove();
@@ -72,7 +75,7 @@ ImageComment.prototype={
             $(_this.mainCanvas).drawImage({
                 layer:true,
                 fromCenter: false,
-                source: e.value.replace("C:\\fakepath\\","image/"),
+                source: a,
                 x: 0, y: 0
             });
         }
@@ -201,7 +204,7 @@ ImageComment.prototype={
             '<button>Submit</button>'+
             '</div>';
         document.body.appendChild($(_htmlStr)[0]);
-
+        console.log($(_htmlStr)[0]);
         $(".overlayWrap button").on('click',function(){
             _this._drawText(_finalX,_finalY,_finalWidth,$(".overlayWrap textarea").val());
         });
@@ -222,8 +225,8 @@ ImageComment.prototype={
     },
     _init:function(){
         var _this=this;
-        $('#'+this.options.loadImageBtn).on("change",function(event){
-            _this.loadImage(event.currentTarget);
+        $('#'+this.options.confirmbtn).on("click",function(event){
+            _this.loadImage();
         });
         $('#'+this.options.circleBtn).on("click",function(){
             _this.useCircle()

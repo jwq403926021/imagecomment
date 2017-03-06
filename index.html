@@ -8,7 +8,7 @@
             padding: 0; margin: 0;
         }
     </style>
-    <link href="css/imagecomment.css" type="text/css" />
+    <link href="css/imagecomment.css" rel="stylesheet" type="text/css" />
 
     <script src="js/jquery-3.1.1.min.js"></script>
     <script src="js/jcanvas.min.js"></script>
@@ -20,7 +20,8 @@
             var im=new ImageComment({
                 //you can input parameter here.
                 canvasWrapper:"canvasWrapper",
-                loadImageBtn:"libtn",
+                loadImageInput:"libtn",
+                confirmbtn:"confirmbtn",
                 circleBtn:"ucbtn",
                 rectBtn:"urbtn",
                 textBtn:"utbtn",
@@ -33,7 +34,8 @@
 </head>
 <body>
     <div style="text-align: center;margin: 15px 0;">
-        <input id="libtn" type="file" value="Load Image" />
+        <input id="libtn" type="text" placeholder="Input the image url here." value="" />
+        <input id="confirmbtn" type="button" value="Go to Comment"/> &nbsp;&nbsp;|&nbsp;&nbsp;
         <input id="urbtn" type="button" value="Add Rectangle Mark" />
         <input id="ucbtn" type="button"  value="Add Circle Mark" />
         <input id="utbtn" type="button"  value="Add Text" />
